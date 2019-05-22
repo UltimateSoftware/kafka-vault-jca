@@ -1,0 +1,15 @@
+version: '2'
+services:
+  vault:
+    image: vault:1.1.2
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 8200:8200
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=root-token
+  kafka_SASL_PLAINTEXT:
+    image: mauricio/kafka-plain
+    ports:
+      - 2181:2181
+      - 9092:9092
