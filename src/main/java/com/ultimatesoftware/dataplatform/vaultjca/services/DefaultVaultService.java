@@ -15,9 +15,18 @@ public class DefaultVaultService implements VaultService {
 
   public DefaultVaultService() {
     try {
-      this.vault = new Vault(new VaultConfig().build(), 1);
+      this.vault = new Vault(new VaultConfig().build());
     } catch (VaultException e) {
       log.error("Error creating Vault service", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  protected DefaultVaultService(String vaultAddr, String token) {
+    try {
+      this.vault = new Vault(new VaultConfig().address(vaultAddr).token(token).build());
+    } catch (VaultException e) {
+      log.error("Error building Vault", e);
       throw new RuntimeException(e);
     }
   }
