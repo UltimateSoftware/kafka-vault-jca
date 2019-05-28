@@ -1,0 +1,70 @@
+@startuml
+title Password Encoder/ Vault Secrets Organization
+
+== (Option 1) All users share a single path under Vault ==
+KafkaClient -> Kafka: Jaas vault details\n(with Password Encoded)
+note over KafkaClient
+  KafkaClient {
+    c.u.d.vaultjca.VaultLoginModule required
+    username="alice"
+    password="{bcrypt}$2a$10...";
+  };
+end note
+Kafka -> VaultLoginModule: jaas options
+VaultLoginModule -> VaultLoginModule: setCredentials(Pub/Priv)
+VaultLoginModule -> VaultAuthLoginCallBack: handle(Callback[])
+VaultAuthLoginCallBack -> VaultAuthLoginCallBack: authenticate
+activate VaultAuthLoginCallBack
+VaultAuthLoginCallBack -> VaultServices: getSecret(usersPath)
+VaultServices --> VaultAuthLoginCallBack: Map<String, String> usersMap
+note right
+  All the users are kept in
+  the under the same path.
+  Then VaultAuthLoginCallBack searches
+  by username in the returned map.
+end note
+VaultAuthLoginCallBack ->VaultAuthLoginCallBack: usersMap.get(username)
+alt user present in the map
+  VaultAuthLoginCallBack -> PasswordEncoder: encoder(password)
+  PasswordEncoder --> VaultAuthLoginCallBack: encodedPassword
+  VaultAuthLoginCallBack -> VaultAuthLoginCallBack: comparePasswords()
+  alt Passwords match
+    VaultAuthLoginCallBack -> VaultLoginModule: callBack.authenticated(true)\nAuth Success
+  else Password mismatch
+    VaultAuthLoginCallBack --> VaultLoginModule:  AuthFailedException
+  end
+else user not found
+  VaultAuthLoginCallBack --> VaultLoginModule:  AuthFailedException
+end
+VaultAuthLoginCallBack --> Kafka: response or AuthFailedException
+deactivate VaultAuthLoginCallBack
+Kafka --> KafkaClient
+|||
+== (Option 2) Each user has its own private a path into Vault ==
+VaultAuthLoginCallBack -> VaultAuthLoginCallBack: authenticate
+activate VaultAuthLoginCallBack
+note over VaultAuthLoginCallBack
+  Builds a path based on a base path + {username}
+end note
+VaultAuthLoginCallBack -> VaultServices: getSecret(usersPath/{username}/)
+VaultServices --> VaultAuthLoginCallBack: Map<String, String> usersMap
+note right
+  Each user has its own private path, the Map will
+  contain a single entry if found otherwise empty
+end note
+VaultAuthLoginCallBack ->VaultAuthLoginCallBack: usersMap.get(username)
+alt user present in the map
+  VaultAuthLoginCallBack -> PasswordEncoder: encoder(password)
+  PasswordEncoder --> VaultAuthLoginCallBack: encodedPassword
+  VaultAuthLoginCallBack -> VaultAuthLoginCallBack: comparePasswords()
+  alt Passwords match
+    VaultAuthLoginCallBack -> VaultLoginModule: callBack.authenticated(true)\nAuth Success
+  else Password mismatch
+    VaultAuthLoginCallBack --> VaultLoginModule:  AuthFailedException
+  end
+else user not found
+  VaultAuthLoginCallBack --> VaultLoginModule:  AuthFailedException
+end
+VaultAuthLoginCallBack --> Kafka: response or AuthFailedException
+deactivate VaultAuthLoginCallBack
+@enduml

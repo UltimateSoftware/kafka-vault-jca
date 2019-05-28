@@ -2,13 +2,11 @@ package com.ultimatesoftware.dataplatform.vaultjca;
 
 import com.ultimatesoftware.dataplatform.vaultjca.services.DefaultVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.VaultService;
-import java.util.Arrays;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import org.apache.kafka.common.security.JaasContext;
 import org.apache.kafka.common.security.plain.internals.PlainSaslServerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +14,7 @@ import org.slf4j.LoggerFactory;
 // http://kafka.apache.org/0100/documentation.html#security_sasl_plain_production
 // https://cwiki.apache.org/confluence/display/KAFKA/KIP-86%3A+Configurable+SASL+callback+handlers
 // https://issues.apache.org/jira/browse/KAFKA-4185
+// TODO (mauricio) put a sequence diagram to show possibilities of password encoder
 public class VaultLoginModule implements LoginModule {
   private static final Logger log = LoggerFactory.getLogger(VaultLoginModule.class);
   private static final String ADMIN_PATH = "admin_path";
@@ -51,7 +50,7 @@ public class VaultLoginModule implements LoginModule {
       } else {
         throw new RuntimeException(String.format("Secret not found for path %s", adminPath));
       }
-    } else if (!(isNullOrEmpty((String) options.get("username")) || isNullOrEmpty((String) options.get("password")) )) {
+    } else if (!(isNullOrEmpty((String) options.get("username")) || isNullOrEmpty((String) options.get("password")))) {
       String username = (String) options.get("username");
       String password = (String) options.get("password");
 
