@@ -33,16 +33,13 @@ public class VaultLoginModule implements LoginModule {
 
   @Override
   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-    options.forEach((k, v) -> log.info("Key={}\tvalue={}", k, v));
-    log.info("Subject {}", subject);
-    log.info("CallbackHandler {}", callbackHandler);
-    sharedState.forEach((k, v) -> log.info("Shared State k={}\tv={}", k, v));
-
     String adminPath = (String) options.get(ADMIN_PATH);
     log.debug("Initializing VaultLoginModule - Admin path {}", adminPath);
 
     // TODO (mauricio) separate this into two LoginModules?
     if (adminPath != null && !adminPath.isEmpty()) {
+      // The difference is that user/passwd for admin comes from vault, the user-clients provide their user/pass in jaas file
+      // I'm assuming that admin credentials are only reachable using specific vault creds
       final Map<String, String> adminCredentials = vaultService.getSecret(adminPath);
       if (adminCredentials != null && adminCredentials.size() > 0) {
         subject.getPublicCredentials().add(adminCredentials.get(USERNAME_KEY));
@@ -50,15 +47,17 @@ public class VaultLoginModule implements LoginModule {
       } else {
         throw new RuntimeException(String.format("Secret not found for path %s", adminPath));
       }
-    } else if (!(isNullOrEmpty((String) options.get("username")) || isNullOrEmpty((String) options.get("password")))) {
-      String username = (String) options.get("username");
-      String password = (String) options.get("password");
-
-      subject.getPublicCredentials().add(username);
-      subject.getPrivateCredentials().add(password);
+    } else if (!(isNullOrEmpty((String) options.get(USERNAME_KEY)) || isNullOrEmpty((String) options.get(PASSWORD_KEY)))) {
+      subject.getPublicCredentials().add(options.get("username"));
+      subject.getPrivateCredentials().add(options.get("password"));
     } else {
       // TODO (mauricio) add more info below.
-      throw new RuntimeException("Not a valid jaas file; specify username and path to password");
+      throw new RuntimeException("Not a valid jaas file; specify username and path to password e.g. "
+          + "KafkaClient {\n"
+          + "  com.ultimatesoftware.dataplatform.vaultjca.VaultLoginModule required\n"
+          + "  username=\"alice\"\n"
+          + "  password=\"alicepwd\";\n"
+          + "};");
     }
   }
 
@@ -68,13 +67,13 @@ public class VaultLoginModule implements LoginModule {
 
   @Override
   public boolean login() throws LoginException {
-    log.info("LOGIN CALLED");
+    log.debug("LOGIN CALLED");
     return true;
   }
 
   @Override
   public boolean commit() throws LoginException {
-    log.info("COMMIT CALLED");
+    log.debug("COMMIT CALLED");
     return true;
   }
 

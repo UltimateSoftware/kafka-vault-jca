@@ -20,8 +20,10 @@ import org.slf4j.LoggerFactory;
 public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCallbackHandler {
   private static final Logger log = LoggerFactory.getLogger(VaultAuthenticationLoginCallbackHandler.class);
   private static final String USERS_PATH = "users_path";
+  private static final String ADMIN_PATH = "admin_path";
   private final VaultService vaultService;
   private String usersPathVault;
+  private String adminPathVault;
 
   public VaultAuthenticationLoginCallbackHandler() {
     this.vaultService = new DefaultVaultService();
@@ -29,17 +31,20 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
 
   @Override
   public void configure(Map<String, ?> configs, String saslMechanism, List<AppConfigurationEntry> jaasConfigEntries) {
-    log.info("MAURICIO saslMechanism {}", saslMechanism);
+    adminPathVault = JaasContext.configEntryOption(jaasConfigEntries, ADMIN_PATH, VaultLoginModule.class.getName());
     usersPathVault = JaasContext.configEntryOption(jaasConfigEntries, USERS_PATH, VaultLoginModule.class.getName());
     log.info("usersPathVault = {}", usersPathVault);
     if (usersPathVault == null || usersPathVault.isEmpty()) {
       throw new RuntimeException(String.format("Jaas file needs an entry %s to the path in vault where the users reside", USERS_PATH));
     }
+    if (adminPathVault == null || adminPathVault.isEmpty()) {
+      throw new RuntimeException(String.format("Jaas file needs an entry %s to the path in vault where the users reside", ADMIN_PATH));
+    }
   }
 
   @Override
   public void close() {
-    log.info("CLOSED CALLLED");
+    log.debug("CLOSED CALLLED");
   }
 
   @Override
@@ -66,14 +71,21 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
       return false;
     }
     else {
-      log.info("Trying authentication for {} with pwd {}", username, password);
-      // check in vault
-      // set authenticated in the callback
+      String pathVault = (username.equals("admin")) ? adminPathVault : usersPathVault;
+      log.info("Trying authentication for {} with pwd {} in path {}", username, password, pathVault);
       // getting this secret per call can be expensive, but eases any updates on vault.
       // TODO (mauricio) use guava cache to keep this in memory with a TTL
-      Map<String, String> usersMap = vaultService.getSecret(usersPathVault);
+      Map<String, String> usersMap = vaultService.getSecret(pathVault);
+      log.info("userMap {}", usersMap);
       // TODO (mauricio) do we need to use password encoders? if so, adjust accordingly.
-      return username.contains(username) && Arrays.equals(usersMap.get(username).toCharArray(), password);
+      if (username.equals("admin")) {
+        return usersMap.get("username").equals(username) && Arrays.equals(usersMap.get("password").toCharArray(), password);
+      }
+      else {
+        log.info("Contains {} - {}", username, usersMap.containsKey(username));
+        log.info("Password match {}", Arrays.equals(usersMap.get(username).toCharArray(), password));
+        return usersMap.containsKey(username) && Arrays.equals(usersMap.get(username).toCharArray(), password);
+      }
     }
   }
 }
