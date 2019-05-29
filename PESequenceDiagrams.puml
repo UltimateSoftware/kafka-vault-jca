@@ -7,7 +7,7 @@ note over KafkaClient
   KafkaClient {
     c.u.d.vaultjca.VaultLoginModule required
     username="alice"
-    password="{bcrypt}$2a$10...";
+    password="alicepwd";
   };
 end note
 Kafka -> VaultLoginModule: jaas options
@@ -68,3 +68,6 @@ end
 VaultAuthLoginCallBack --> Kafka: response or AuthFailedException
 deactivate VaultAuthLoginCallBack
 @enduml
+// Questions
+// 1. Do we need PasswordEncoder?
+// 2. JCA / jaas implementation, do we need two different modules? (not really improvements splitting this)

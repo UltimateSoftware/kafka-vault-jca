@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 // TODO (mauricio) put a sequence diagram to show possibilities of password encoder
 public class VaultLoginModule implements LoginModule {
   private static final Logger log = LoggerFactory.getLogger(VaultLoginModule.class);
-  private static final String ADMIN_PATH = "admin_path";
-  private static final String USERNAME_KEY = "username";
-  private static final String PASSWORD_KEY = "password";
+  protected static final String ADMIN_PATH = "admin_path";
+  protected static final String USERNAME_KEY = "username";
+  protected static final String PASSWORD_KEY = "password";
 
   private final VaultService vaultService;
 
@@ -29,6 +29,11 @@ public class VaultLoginModule implements LoginModule {
 
   public VaultLoginModule() {
     vaultService = new DefaultVaultService();
+  }
+
+  // For testing
+  protected VaultLoginModule(VaultService vaultService) {
+    this.vaultService = vaultService;
   }
 
   @Override
@@ -52,7 +57,7 @@ public class VaultLoginModule implements LoginModule {
       subject.getPrivateCredentials().add(options.get("password"));
     } else {
       // TODO (mauricio) add more info below.
-      throw new RuntimeException("Not a valid jaas file; specify username and path to password e.g. "
+      throw new RuntimeException("Not a valid jaas file; specify username and password e.g.\n"
           + "KafkaClient {\n"
           + "  com.ultimatesoftware.dataplatform.vaultjca.VaultLoginModule required\n"
           + "  username=\"alice\"\n"

@@ -19,14 +19,19 @@ import org.slf4j.LoggerFactory;
 // https://strimzi.io/2018/11/16/using-vault-with-strimzi.html
 public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCallbackHandler {
   private static final Logger log = LoggerFactory.getLogger(VaultAuthenticationLoginCallbackHandler.class);
-  private static final String USERS_PATH = "users_path";
-  private static final String ADMIN_PATH = "admin_path";
+  protected static final String USERS_PATH = "users_path";
+  protected static final String ADMIN_PATH = "admin_path";
   private final VaultService vaultService;
   private String usersPathVault;
   private String adminPathVault;
 
   public VaultAuthenticationLoginCallbackHandler() {
     this.vaultService = new DefaultVaultService();
+  }
+
+  // for testing
+  protected VaultAuthenticationLoginCallbackHandler(VaultService vaultService) {
+    this.vaultService = vaultService;
   }
 
   @Override
