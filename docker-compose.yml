@@ -9,8 +9,15 @@ services:
       - 8200:8200
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=root-token
+  # TODO (mauricio) Add secrets to vault; many ways to do it.
+  # 1. start the above then add the secrets (can be done with another container)
+  # 2. Custom image that adds secret before starting
+  # 3. mount secrets volume (you need to run in non-dev mode) and save secrets there
   kafka_SASL_PLAINTEXT:
     image: mauricio/kafka-plain
     ports:
       - 2181:2181
       - 9092:9092
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=root-token

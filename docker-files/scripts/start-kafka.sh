@@ -74,5 +74,5 @@ fi
 
 
 # Run Kafka
-export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/kafka_server_plain_jaas.conf"
+export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/kafka_server_vault_jaas.conf"
 $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server-plain.properties

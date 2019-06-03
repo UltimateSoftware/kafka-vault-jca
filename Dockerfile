@@ -2,7 +2,7 @@ FROM java:openjdk-8-jre
 # TODO (mauricio) update to use newer version of debian
 # TODO (mauricio) this is based on the old spotify image, I copied over the same script and supervisor, but I'm not using any of the ENV vars they provide
 # TODO (mauricio) ultimately this uses a hardcoded SASL_PLAINTEXT that forces `advertised.listeners` to `SASL_PLAINTEXT://localhost:9092` a lot of this can be simplify
-# TODO (mauricio) add fat jar into the image so it can be used.
+# ~~TODO (mauricio) add fat jar into the image so it can be used.~~ <- DONE
 ENV DEBIAN_FRONTEND noninteractive
 ENV SCALA_VERSION 2.11
 ENV KAFKA_VERSION 2.0.1
@@ -26,7 +26,9 @@ ADD docker-files/scripts/server-plain.properties /opt/kafka_"$SCALA_VERSION"-"$K
 #ADD docker-files/scripts/addSaslPlainText.sh /usr/bin
 #RUN /usr/bin/addSaslPlainText.sh && \
 #    chmod 755 /usr/bin/start-kafka.sh
-ADD docker-files/scripts/kafka_server_plain_jaas.conf /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"
+#ADD docker-files/scripts/kafka_server_plain_jaas.conf /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"
+ADD src/test/resources/kafka_server_vault_jaas.conf /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"
+ADD target/kafka-vault-jca-1.0-SNAPSHOT.jar /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"/libs/
 
 # Supervisor config
 ADD docker-files/supervisor/kafka.conf docker-files/supervisor/zookeeper.conf /etc/supervisor/conf.d/
