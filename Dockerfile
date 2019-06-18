@@ -19,15 +19,11 @@ RUN echo "deb [check-valid-until=no] http://cdn-fastly.deb.debian.org/debian jes
     apt-get clean && \
     wget -q https://archive.apache.org/dist/kafka/"$KAFKA_VERSION"/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz -O /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz && \
     tar xfz /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz -C /opt && \
-    rm /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz
+    rm /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz && \
+    wget -q  https://releases.hashicorp.com/vault/1.1.3/vault_1.1.3_linux_amd64.zip -O vault.zip && unzip vault.zip -d /bin && rm vault.zip
 
 ADD docker-files/scripts /usr/bin
 ADD docker-files/scripts/server-plain.properties /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"/config
-#ADD docker-files/scripts/addSaslPlainText.sh /usr/bin
-#RUN /usr/bin/addSaslPlainText.sh && \
-#    chmod 755 /usr/bin/start-kafka.sh
-#ADD docker-files/scripts/kafka_server_plain_jaas.conf /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"
-ADD src/test/resources/kafka_server_vault_jaas.conf /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"
 ADD target/kafka-vault-jca-1.0-SNAPSHOT.jar /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"/libs/
 
 # Supervisor config

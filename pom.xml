@@ -125,8 +125,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <!--// TODO (mauricio) change this image name accordingly I think we used to have ultimate/{imageName}, also update docker-compose -->
-                            <name>mauricio/kafka-plain</name>
+                            <name>${docker.image.prefix}/kafka-sasl-plain-vault</name>
                             <build>
                                 <dockerFile>${project.basedir}/Dockerfile</dockerFile>
                             </build>

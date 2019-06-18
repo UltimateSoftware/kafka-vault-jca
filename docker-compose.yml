@@ -14,7 +14,7 @@ services:
   # 2. Custom image that adds secret before starting
   # 3. mount secrets volume (you need to run in non-dev mode) and save secrets there
   kafka_SASL_PLAINTEXT:
-    image: mauricio/kafka-plain
+    image: ultimate/kafka-sasl-plain-vault
     ports:
       - 2181:2181
       - 9092:9092

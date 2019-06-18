@@ -72,7 +72,7 @@ if [ ! -z "$AUTO_CREATE_TOPICS" ]; then
     echo "auto.create.topics.enable=$AUTO_CREATE_TOPICS" >> $KAFKA_HOME/config/server.properties
 fi
 
-
+# Seeding vault with default credentials for admin - THIS ASSUMES you run this alongside vault and vault ENV vars are set.
+/bin/vault kv put secret/kafka/admin username=admin password=adminpwd
 # Run Kafka
-export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/kafka_server_vault_jaas.conf"
 $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server-plain.properties
