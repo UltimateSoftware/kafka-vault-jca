@@ -36,6 +36,9 @@ public class DefaultVaultService implements VaultService {
     try {
       return vault.logical().read(path).getData();
     } catch (VaultException e) {
+      if (e.getHttpStatusCode() == 404) {
+        return Collections.EMPTY_MAP;
+      }
       throw new RuntimeException(e);
     }
   }

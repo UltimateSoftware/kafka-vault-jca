@@ -2,17 +2,12 @@ version: '2'
 services:
   vault:
     image: vault:1.1.2
-#    image: vault:0.11.6
     cap_add:
       - IPC_LOCK
     ports:
       - 8200:8200
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=root-token
-  # TODO (mauricio) Add secrets to vault; many ways to do it.
-  # 1. start the above then add the secrets (can be done with another container)
-  # 2. Custom image that adds secret before starting
-  # 3. mount secrets volume (you need to run in non-dev mode) and save secrets there
   kafka_SASL_PLAINTEXT:
     image: ultimate/kafka-sasl-plain-vault
     ports:

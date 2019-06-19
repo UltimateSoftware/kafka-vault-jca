@@ -30,7 +30,7 @@ import org.mockito.ArgumentMatchers;
 
 public class VaultAuthenticationLoginCallbackHandlerTest {
 
-  private static final String SASL_MECHANISM = "PLAIN";
+  public static final String SASL_MECHANISM = "PLAIN";
   private VaultService vaultService = mock(VaultService.class);
   private VaultAuthenticationLoginCallbackHandler callbackHandler = new VaultAuthenticationLoginCallbackHandler(vaultService);
   private Map<String, String> options = new HashMap<>();
@@ -75,7 +75,7 @@ public class VaultAuthenticationLoginCallbackHandlerTest {
 
     Map<String, String> adminCreds = new HashMap<>();
     adminCreds.put("username", "admin");
-    adminCreds.put("password", "adminpwd");
+    adminCreds.put(VaultAuthenticationLoginCallbackHandler.PASSWORD_MAP_ENTRY_KEY, "adminpwd");
 
     when(vaultService.getSecret(ArgumentMatchers.eq(VAULT_KAFKA_ADMIN_PATH))).thenReturn(adminCreds);
 
@@ -90,19 +90,19 @@ public class VaultAuthenticationLoginCallbackHandlerTest {
     callbackHandler.configure(Collections.EMPTY_MAP, SASL_MECHANISM, jaasConfigEntries);
 
     Callback[] callbacks = new Callback[2];
-    callbacks[0] = new NameCallback("username", "alice");
+    String clientUsername = "alice";
+    callbacks[0] = new NameCallback("username", clientUsername);
     callbacks[1] = new PlainAuthenticateCallback("alicepwd".toCharArray());
 
     Map<String, String> usersMap = new HashMap<>();
-    usersMap.put("alice", "alicepwd");
-    usersMap.put("bob", "bobpwd");
+    usersMap.put(VaultAuthenticationLoginCallbackHandler.PASSWORD_MAP_ENTRY_KEY, "alicepwd");
 
-    when(vaultService.getSecret(ArgumentMatchers.eq(VAULT_KAFKA_USERS_PATH))).thenReturn(usersMap);
+    when(vaultService.getSecret(ArgumentMatchers.eq(VAULT_KAFKA_USERS_PATH+"/"+clientUsername))).thenReturn(usersMap);
 
     callbackHandler.handle(callbacks);
     assertThat(((PlainAuthenticateCallback) callbacks[1]).authenticated(), is(true));
     verify(vaultService, never()).getSecret(ArgumentMatchers.eq(VAULT_KAFKA_ADMIN_PATH));
-    verify(vaultService).getSecret(ArgumentMatchers.eq(VAULT_KAFKA_USERS_PATH));
+    verify(vaultService).getSecret(ArgumentMatchers.eq(VAULT_KAFKA_USERS_PATH+"/"+clientUsername));
 
   }
 
