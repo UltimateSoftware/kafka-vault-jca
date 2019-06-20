@@ -7,6 +7,33 @@
     <groupId>com.ultimatesoftware.dataplatform</groupId>
     <artifactId>kafka-vault-jca</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>This is a module for Kafka to support SASL/PLAIN against Vault server, offers an implementation of
+        `org.apache.kafka.common.security.auth.AuthenticateCallbackHandler` and `javax.security.auth.spi.LoginModule`
+        following the recommendations from https://docs.confluent.io/current/kafka/authentication_sasl/authentication_sasl_plain.html#configuration</description>
+    <url>https://github.com/mauricioalarcon/kafka-vault-jca</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Mauricio Alarcon</name>
+            <email>558874+mauricioalarcon@users.noreply.github.com</email>
+            <organization>Ultimate Software</organization>
+            <organizationUrl>http://www.ultimatesoftware.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:mauricioalarcon/kafka-vault-jca.git</connection>
+        <developerConnection>scm:git:git@github.com:mauricioalarcon/kafka-vault-jca.git</developerConnection>
+        <url>https://github.com/mauricioalarcon/kafka-vault-jca</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
