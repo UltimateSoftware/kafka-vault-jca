@@ -13,6 +13,8 @@
         <docker.image.prefix>ultimate</docker.image.prefix>
         <kafka.version>2.1.1</kafka.version>
         <vault.driver.version>4.0.0</vault.driver.version>
+        <guava.version>28.0-jre</guava.version>
+
         <junit.version>4.12</junit.version>
         <hamcrest.version>2.1</hamcrest.version>
         <testcontainers.version>1.11.2</testcontainers.version>
@@ -31,6 +33,12 @@
             <artifactId>vault-java-driver</artifactId>
             <version>${vault.driver.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>

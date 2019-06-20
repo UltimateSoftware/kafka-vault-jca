@@ -1,5 +1,8 @@
 package com.ultimatesoftware.dataplatform.vaultjca;
 
+import static com.ultimatesoftware.dataplatform.vaultjca.VaultLoginModule.ENV_CACHE_VAULT;
+
+import com.ultimatesoftware.dataplatform.vaultjca.services.CacheDecoratorVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.DefaultVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.VaultService;
 import org.apache.kafka.common.security.JaasContext;
@@ -57,7 +60,13 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
   private String adminPathVault;
 
   public VaultAuthenticationLoginCallbackHandler() {
-    this.vaultService = new DefaultVaultService();
+    if (System.getenv(ENV_CACHE_VAULT) != null && System.getenv(ENV_CACHE_VAULT).equalsIgnoreCase("true")){
+      log.debug("Cache vault enabled");
+      vaultService = new CacheDecoratorVaultService(new DefaultVaultService());
+    }
+    else {
+      vaultService = new DefaultVaultService();
+    }
   }
 
   // for testing

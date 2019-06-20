@@ -54,6 +54,14 @@ For users create entries under `users_path/{user}` with an entry `passoword=secr
 
 - Start the service passing the jaas file as `-Djava.security.auth.login.config=PATH_TO_JAAS_FILE`
 
+### Library configuration
+There are few configuration options available through environment variables as follow:
+
+```bash
+CACHE_VAULT="true" # When true will enable cache data from vault. Defaults to false.
+VAULT_CACHE_TTL_MIN=5 # Optional, defaults to 2 min when  `CACHE_VAULT` is enabled.
+```
+
 ## Client Configuration
 - Each client needs a JAAS file with a `KafkaClient` section similar to this and two properties `username` and `password`
 ```
