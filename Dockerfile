@@ -2,7 +2,6 @@ FROM java:openjdk-8-jre
 # TODO (mauricio) update to use newer version of debian
 # TODO (mauricio) this is based on the old spotify image, I copied over the same script and supervisor, but I'm not using any of the ENV vars they provide
 # TODO (mauricio) ultimately this uses a hardcoded SASL_PLAINTEXT that forces `advertised.listeners` to `SASL_PLAINTEXT://localhost:9092` a lot of this can be simplify
-# ~~TODO (mauricio) add fat jar into the image so it can be used.~~ <- DONE
 ENV DEBIAN_FRONTEND noninteractive
 ENV SCALA_VERSION 2.11
 ENV KAFKA_VERSION 2.0.1

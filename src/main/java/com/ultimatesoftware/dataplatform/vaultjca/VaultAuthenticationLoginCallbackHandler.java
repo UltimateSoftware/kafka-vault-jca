@@ -120,15 +120,13 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
     }
   }
 
-  protected boolean authenticateWithVault(String username, char[] password) {
+  private boolean authenticateWithVault(String username, char[] password) {
     if (username == null) {
       return false;
     }
 
     String pathVault = username.equals("admin") ? adminPathVault : String.format("%s/%s", usersPathVault, username);
     log.info("Trying authentication for {} in path {}", username, pathVault);
-    // getting this secret per call can be expensive, but eases any updates on vault.
-    // TODO (mauricio) use guava cache to keep this in memory with a TTL
     Map<String, String> usersMap = vaultService.getSecret(pathVault);
     if (usersMap.size() == 0) {
       return false;
