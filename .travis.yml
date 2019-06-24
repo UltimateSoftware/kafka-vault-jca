@@ -3,6 +3,6 @@ deploy:
   provider: releases
   api_key:
     secure: FhKGFy/ktNtjUU6H8GZtSzbZX3G1Qgq4Xpa3ig1kshG43j55r11FCoHM/IvlmbLBd88sKbIFyX1kVp3LwoXGg67YB/9fWZ8WzzzVzU0u9xb7ynXmDm54PQPkTsadfyS2SCfS/t0nvv42PgqICzsBb1BMNjsY69GlaVL3GyEoKZyAu034jYUDahPPgILBJitkae08v+Ygk10lNpIv+bThY5DRlteyHXGrIM8UV4fTisYozBRUXafovIT+neUbPh9qRqy89rOvn8Y4Bi5mAMIuBozSny7EO3V36OGxalb6jP7XWSKQviNj23yruS4j1nH/SK/w9rnGtsE8Ibo2DsOLTmjzKtXsh5V5UY/woex50UUt27QakOr9WNX9kfXqKSJe7iyFNGgzX/OsaA5/vpE0++UT6hO/e33PCETbwW5+6hjWK9Mv6zBAWuxBgui4TMlCJVWU+NNHGfEHmX+sn1vMIHPJbMt/Wxp138lybRmje45E9YPZD/GQXsl2przaEUYsjWzlbSjsEYzgBPCXfsqlDw3uXlAYk0BIfKt7ixQ3vF4BuMrN6Q+KCOanePifprQQEo5soKPX7iLBhxTLF86Fm1QAMRqoE68pBvM1nU7CP6mhhJf4UUr7zZ3dCpj8iM3/x5E8FYD4vAZQCmSzV2ZNXKpdQL3GN4Sz5QA65ZOO9xU=
-  file: target/kafka-vault-jca-1.0-SNAPSHOT.jar
+  file: target/kafka-vault-jca-*.jar
   on:
     repo: UltimateSoftware/kafka-vault-jca
