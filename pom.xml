@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:mauricioalarcon/kafka-vault-jca.git</connection>
-        <developerConnection>scm:git:git@github.com:mauricioalarcon/kafka-vault-jca.git</developerConnection>
-        <url>https://github.com/mauricioalarcon/kafka-vault-jca</url>
+        <connection>scm:git:git@github.com:UltimateSoftware/kafka-vault-jca.git</connection>
+        <developerConnection>scm:git:git@github.com:UltimateSoftware/kafka-vault-jca.git</developerConnection>
+        <url>https://github.com/UltimateSoftware/kafka-vault-jca</url>
     </scm>
 
     <properties>
@@ -46,6 +46,7 @@
         <hamcrest.version>2.1</hamcrest.version>
         <testcontainers.version>1.11.2</testcontainers.version>
         <mockito.version>2.27.0</mockito.version>
+        <gitflow.version>1.12.0</gitflow.version>
     </properties>
 
     <dependencies>
@@ -176,9 +177,20 @@
                         </image>
                     </images>
                 </configuration>
-
             </plugin>
 
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>${gitflow.version}</version>
+                <configuration>
+                    <gitFlowConfig>
+                        <featureBranchPrefix>feature-</featureBranchPrefix>
+                        <releaseBranchPrefix>release-</releaseBranchPrefix>
+                        <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+                    </gitFlowConfig>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
