@@ -1,5 +1,7 @@
 # SASL_PLAIN Authentication with Vault (Hashicorp)
 
+[![Build Status](https://travis-ci.org/UltimateSoftware/kafka-vault-jca.svg?branch=master)](https://travis-ci.org/UltimateSoftware/kafka-vault-jca)
+
 ## Overview
 The default implementation of SASL/PLAIN in Kafka specifies user names and passwords in the JAAS configuration file. 
 In order to avoid storing these plain in disk you need to create your own implementation of common JCA `javax.security.auth.spi.LoginModule` and `javax.security.auth.callback.CallbackHandler` aka in Kafka as `org.apache.kafka.common.security.auth.AuthenticateCallbackHandler` that obtain
