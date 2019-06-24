@@ -6,6 +6,8 @@ import com.google.common.cache.CacheBuilder;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Decorator Cache implementation based on Google's Guava Cache that delegates call to any
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CacheDecoratorVaultService implements VaultService {
 
+  private static final Logger log = LoggerFactory.getLogger(CacheDecoratorVaultService.class);
   private static final String VAULT_CACHE_TTL_MIN = "VAULT_CACHE_TTL_MIN";
   protected final Cache<String, Map<String, String>> cache;
   private final VaultService vaultService;
@@ -28,11 +31,13 @@ public class CacheDecoratorVaultService implements VaultService {
         .maximumSize(100)
         .expireAfterAccess(cacheTtl, TimeUnit.MINUTES)
         .build();
+    log.debug("Cache initialized with TTL {}", cacheTtl);
   }
 
   @Override
   public Map<String, String> getSecret(String path) {
     try {
+      log.debug("Hit count {}, miss count {}, size {}", cache.stats().hitCount(), cache.stats().missCount(), cache.size());
       return cache.get(path, () -> vaultService.getSecret(path));
     } catch (ExecutionException e) {
       throw new RuntimeException(e);
@@ -43,5 +48,6 @@ public class CacheDecoratorVaultService implements VaultService {
   public void writeSecret(String path, Map<String, String> value) {
     vaultService.writeSecret(path, value);
     cache.put(path, value);
+    log.debug("Hit count {}, miss count {}, size {}", cache.stats().hitCount(), cache.stats().missCount(), cache.size());
   }
 }
