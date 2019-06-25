@@ -105,12 +105,12 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
     for (Callback callback : callbacks) {
       if (callback instanceof NameCallback) {
         username = ((NameCallback) callback).getDefaultName();
-        log.info("Handling callback for NameCallback {}", username);
+        log.debug("Handling callback for NameCallback {}", username);
         continue;
       }
 
       if (callback instanceof PlainAuthenticateCallback) {
-        log.info("Handling callback for PlainAuth {}", ((PlainAuthenticateCallback) callback).password());
+        log.debug("Handling callback for PlainAuthenticateCallback pwd length {}", ((PlainAuthenticateCallback) callback).password().length);
         PlainAuthenticateCallback plainCallback = (PlainAuthenticateCallback) callback;
         plainCallback.authenticated(authenticateWithVault(username, plainCallback.password()));
         continue;
