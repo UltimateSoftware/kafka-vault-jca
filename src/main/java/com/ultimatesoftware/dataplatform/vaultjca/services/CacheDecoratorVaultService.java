@@ -30,6 +30,7 @@ public class CacheDecoratorVaultService implements VaultService {
     this.cache = CacheBuilder.newBuilder()
         .maximumSize(100)
         .expireAfterAccess(cacheTtl, TimeUnit.MINUTES)
+        .recordStats()
         .build();
     log.debug("Cache initialized with TTL {}", cacheTtl);
   }
@@ -37,7 +38,7 @@ public class CacheDecoratorVaultService implements VaultService {
   @Override
   public Map<String, String> getSecret(String path) {
     try {
-      log.debug("Hit count {}, miss count {}, size {}", cache.stats().hitCount(), cache.stats().missCount(), cache.size());
+      printStats();
       return cache.get(path, () -> vaultService.getSecret(path));
     } catch (ExecutionException e) {
       throw new RuntimeException(e);
@@ -48,6 +49,10 @@ public class CacheDecoratorVaultService implements VaultService {
   public void writeSecret(String path, Map<String, String> value) {
     vaultService.writeSecret(path, value);
     cache.put(path, value);
-    log.debug("Hit count {}, miss count {}, size {}", cache.stats().hitCount(), cache.stats().missCount(), cache.size());
+    printStats();
+  }
+
+  private void printStats() {
+    log.debug("Hit count {}, miss count {}, hit rate {}, miss rate {}, size {}", cache.stats().hitCount(), cache.stats().missCount(), cache.stats().hitRate(), cache.stats().missRate(), cache.size());
   }
 }
