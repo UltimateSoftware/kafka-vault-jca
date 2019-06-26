@@ -29,7 +29,7 @@ import java.util.Map;
  * {@link javax.security.auth.spi.LoginModule} and {@link javax.security.auth.callback.CallbackHandler} that obtains the username and
  * password from an external source; in this case Vault.</p>
  *
- * <p>More info here https://docs.confluent.io/current/kafka/authentication_sasl/authentication_sasl_plain.html#sasl-plain-overview.</p>
+ * <p>More info <a href="https://docs.confluent.io/current/kafka/authentication_sasl/authentication_sasl_plain.html#sasl-plain-overview.">here</a></p>
  *
  * <p>The expected organization of secrets in vault is as follows:</p>
  *
@@ -74,6 +74,9 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
     this.vaultService = vaultService;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void configure(Map<String, ?> configs, String saslMechanism, List<AppConfigurationEntry> jaasConfigEntries) {
     // Loading vault path from jaas config
@@ -88,6 +91,9 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() {
     log.debug("Close called");

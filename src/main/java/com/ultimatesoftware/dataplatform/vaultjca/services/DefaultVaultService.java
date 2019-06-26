@@ -8,6 +8,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Default Vault implementation of {@link VaultService} that uses vault java client by
+ * <a href="https://github.com/BetterCloud/vault-java-driver">vault driver bettercloud</a>.
+ *
+ */
 public class DefaultVaultService implements VaultService {
   private static final Logger log = LoggerFactory.getLogger(DefaultVaultService.class);
 
@@ -31,6 +36,9 @@ public class DefaultVaultService implements VaultService {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Map<String, String> getSecret(String path) {
     try {
@@ -43,6 +51,9 @@ public class DefaultVaultService implements VaultService {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeSecret(String path, Map<String, String> value) {
     try {

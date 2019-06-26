@@ -23,6 +23,12 @@ public class CacheDecoratorVaultService implements VaultService {
   protected final Cache<String, Map<String, String>> cache;
   private final VaultService vaultService;
 
+  /**
+   * This implementation uses the decorator pattern to wrap calls with the cache that can also be configured via environment variables.
+   *
+   * Defaults to max 100 entries in the cache, and 2 minutes of TTL.
+   * @param vaultService an implementation of {@link VaultService} used to delegate calls.
+   */
   public CacheDecoratorVaultService(VaultService vaultService) {
     Preconditions.checkArgument(!(vaultService instanceof CacheDecoratorVaultService), "Use any other implementation of VaultService as a delegator");
     long cacheTtl = (System.getenv(VAULT_CACHE_TTL_MIN) != null) ? Long.parseLong(System.getenv(VAULT_CACHE_TTL_MIN)) : 2;
@@ -35,6 +41,10 @@ public class CacheDecoratorVaultService implements VaultService {
     log.debug("Cache initialized with TTL {}", cacheTtl);
   }
 
+  /**
+   * Tries to get the value from cache otherwise delegates to the pass implementation.
+   * {@inheritDoc}
+   */
   @Override
   public Map<String, String> getSecret(String path) {
     try {
@@ -45,6 +55,10 @@ public class CacheDecoratorVaultService implements VaultService {
     }
   }
 
+  /**
+   * Writes first to the delegated implementation, then creates the entry in the local cache.
+   * {@inheritDoc}
+   */
   @Override
   public void writeSecret(String path, Map<String, String> value) {
     vaultService.writeSecret(path, value);
