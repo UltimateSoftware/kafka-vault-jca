@@ -6,6 +6,7 @@ import com.ultimatesoftware.dataplatform.vaultjca.services.VaultService;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import org.apache.kafka.common.security.plain.internals.PlainSaslServerProvider;
@@ -41,6 +42,9 @@ public class VaultLoginModule implements LoginModule {
     PlainSaslServerProvider.initialize();
   }
 
+  /**
+   * Upon instantiation can enable cache implementation if {@code CACHE_VAULT} is true.
+   */
   public VaultLoginModule() {
     if (System.getenv(ENV_CACHE_VAULT) != null && System.getenv(ENV_CACHE_VAULT).equalsIgnoreCase("true")) {
       log.debug("Cache vault enabled");
@@ -55,6 +59,15 @@ public class VaultLoginModule implements LoginModule {
     this.vaultService = vaultService;
   }
 
+  /**
+   * Initialize VaultLoginModule.
+   *
+   * <p>Makes simple checks that the expected configuration read by jaas configuration is present.
+   * it expects an entry for `admin_path`</p>
+   *
+   * <p>This method is called as part of the JCA dance from {@link LoginContext}</p>
+   * {@inheritDoc}
+   */
   @Override
   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
     String adminPath = (String) options.get(ADMIN_PATH);
@@ -93,23 +106,35 @@ public class VaultLoginModule implements LoginModule {
     return string == null || string.isEmpty();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean login() throws LoginException {
     log.debug("Login Called");
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean commit() throws LoginException {
     log.debug("Commit called");
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean abort() throws LoginException {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean logout() throws LoginException {
     return true;
