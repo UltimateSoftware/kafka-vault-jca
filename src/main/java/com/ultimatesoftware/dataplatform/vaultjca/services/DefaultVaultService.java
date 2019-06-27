@@ -3,6 +3,9 @@ package com.ultimatesoftware.dataplatform.vaultjca.services;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.Collections;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -27,7 +30,10 @@ public class DefaultVaultService implements VaultService {
     }
   }
 
-  protected DefaultVaultService(String vaultAddr, String token) {
+  @VisibleForTesting
+  DefaultVaultService(String vaultAddr, String token) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(vaultAddr));
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(token));
     try {
       this.vault = new Vault(new VaultConfig().address(vaultAddr).token(token).build());
     } catch (VaultException e) {
@@ -40,7 +46,9 @@ public class DefaultVaultService implements VaultService {
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings("unchecked")
   public Map<String, String> getSecret(String path) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(path));
     try {
       return vault.logical().read(path).getData();
     } catch (VaultException e) {

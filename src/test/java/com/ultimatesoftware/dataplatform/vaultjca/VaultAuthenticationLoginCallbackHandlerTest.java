@@ -30,7 +30,7 @@ import org.mockito.ArgumentMatchers;
 
 public class VaultAuthenticationLoginCallbackHandlerTest {
 
-  public static final String SASL_MECHANISM = "PLAIN";
+  private static final String SASL_MECHANISM = "PLAIN";
   private VaultService vaultService = mock(VaultService.class);
   private VaultAuthenticationLoginCallbackHandler callbackHandler = new VaultAuthenticationLoginCallbackHandler(vaultService);
   private Map<String, String> options = new HashMap<>();
@@ -60,7 +60,7 @@ public class VaultAuthenticationLoginCallbackHandlerTest {
   @Test
   public void shouldThrownExceptionWhenPathsAreNotPresent() {
     options.remove(VaultAuthenticationLoginCallbackHandler.ADMIN_PATH);
-    thrown.expect(RuntimeException.class);
+    thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(containsString("Jaas file needs an entry"));
     callbackHandler.configure(Collections.EMPTY_MAP, SASL_MECHANISM, jaasConfigEntries);
   }

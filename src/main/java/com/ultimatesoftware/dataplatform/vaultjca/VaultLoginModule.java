@@ -1,5 +1,8 @@
 package com.ultimatesoftware.dataplatform.vaultjca;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.ultimatesoftware.dataplatform.vaultjca.services.CacheDecoratorVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.DefaultVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.VaultService;
@@ -17,9 +20,8 @@ import org.slf4j.LoggerFactory;
  * Implementation of {@link LoginModule} that sets up Vault as a Login Module for Kafka.
  *
  * <p>The default implementation of SASL/PLAIN in Kafka specifies user names and passwords in the JAAS configuration file.
- * In order to avoid storing these plain in disk you need to create your own implementation of common JCA
- * {@link javax.security.auth.spi.LoginModule} and {@link javax.security.auth.callback.CallbackHandler} that obtains the username and
- * password from an external source; in this case Vault.</p>
+ * In order to avoid storing these plain in disk you need to create your own implementation of common JCA {@link javax.security.auth.spi.LoginModule}
+ * and {@link javax.security.auth.callback.CallbackHandler} that obtains the username and password from an external source; in this case Vault.</p>
  *
  * <p>More info here https://docs.confluent.io/current/kafka/authentication_sasl/authentication_sasl_plain.html#sasl-plain-overview.</p>
  *
@@ -46,17 +48,17 @@ public class VaultLoginModule implements LoginModule {
    * Upon instantiation can enable cache implementation if {@code CACHE_VAULT} is true.
    */
   public VaultLoginModule() {
-    if (System.getenv(ENV_CACHE_VAULT) != null && System.getenv(ENV_CACHE_VAULT).equalsIgnoreCase("true")) {
+    if ("true".equalsIgnoreCase(System.getenv(ENV_CACHE_VAULT))) {
       log.debug("Cache vault enabled");
       vaultService = new CacheDecoratorVaultService(new DefaultVaultService());
-    } else {
-      vaultService = new DefaultVaultService();
+      return;
     }
+    vaultService = new DefaultVaultService();
   }
 
-  // For testing
+  @VisibleForTesting
   protected VaultLoginModule(VaultService vaultService) {
-    this.vaultService = vaultService;
+    this.vaultService = Preconditions.checkNotNull(vaultService);
   }
 
   /**
@@ -73,7 +75,7 @@ public class VaultLoginModule implements LoginModule {
     String adminPath = (String) options.get(ADMIN_PATH);
     log.debug("Initializing VaultLoginModule - Admin path {}", adminPath);
 
-    if (adminPath != null && !adminPath.isEmpty()) {
+    if (!Strings.isNullOrEmpty(adminPath)) {
       // The difference is that user/passwd for admin comes from vault, the user-clients provide their user/pass in jaas file
       // I'm assuming that admin credentials are only reachable using specific vault creds
       final Map<String, String> adminCredentials = vaultService.getSecret(adminPath);
@@ -86,7 +88,7 @@ public class VaultLoginModule implements LoginModule {
       throw new RuntimeException(String.format("Secret not found for path %s", adminPath));
     }
 
-    if (!(isNullOrEmpty((String) options.get(USERNAME_KEY)) || isNullOrEmpty((String) options.get(PASSWORD_KEY)))) {
+    if (!(Strings.isNullOrEmpty((String) options.get(USERNAME_KEY)) || Strings.isNullOrEmpty((String) options.get(PASSWORD_KEY)))) {
       subject.getPublicCredentials().add(options.get("username"));
       subject.getPrivateCredentials().add(options.get("password"));
       return;
@@ -102,9 +104,6 @@ public class VaultLoginModule implements LoginModule {
 
   }
 
-  private boolean isNullOrEmpty(String string) {
-    return string == null || string.isEmpty();
-  }
 
   /**
    * {@inheritDoc}
