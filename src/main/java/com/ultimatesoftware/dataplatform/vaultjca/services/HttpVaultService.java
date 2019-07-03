@@ -15,13 +15,16 @@ import org.slf4j.LoggerFactory;
  * Default Vault implementation of {@link VaultService} that uses vault java client by
  * <a href="https://github.com/BetterCloud/vault-java-driver">vault driver bettercloud</a>.
  *
+ * At this point this implementation is not revoking tokens and only can be configured using the
+ * provided environment variables as described in the library documentation. It also assumes vault is using
+ * an version 2 engine.
  */
-public class DefaultVaultService implements VaultService {
-  private static final Logger log = LoggerFactory.getLogger(DefaultVaultService.class);
+public class HttpVaultService implements VaultService {
+  private static final Logger log = LoggerFactory.getLogger(HttpVaultService.class);
 
   private final Vault vault;
 
-  public DefaultVaultService() {
+  public HttpVaultService() {
     try {
       this.vault = new Vault(new VaultConfig().build());
     } catch (VaultException e) {
@@ -31,7 +34,7 @@ public class DefaultVaultService implements VaultService {
   }
 
   @VisibleForTesting
-  DefaultVaultService(String vaultAddr, String token) {
+  HttpVaultService(String vaultAddr, String token) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(vaultAddr));
     Preconditions.checkArgument(!Strings.isNullOrEmpty(token));
     try {

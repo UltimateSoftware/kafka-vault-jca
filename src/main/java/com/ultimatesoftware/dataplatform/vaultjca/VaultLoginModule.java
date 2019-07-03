@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.ultimatesoftware.dataplatform.vaultjca.services.CacheDecoratorVaultService;
-import com.ultimatesoftware.dataplatform.vaultjca.services.DefaultVaultService;
+import com.ultimatesoftware.dataplatform.vaultjca.services.HttpVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.VaultService;
 import java.util.Map;
 import javax.security.auth.Subject;
@@ -50,10 +50,10 @@ public class VaultLoginModule implements LoginModule {
   public VaultLoginModule() {
     if ("true".equalsIgnoreCase(System.getenv(ENV_CACHE_VAULT))) {
       log.debug("Cache vault enabled");
-      vaultService = new CacheDecoratorVaultService(new DefaultVaultService());
+      vaultService = new CacheDecoratorVaultService(new HttpVaultService());
       return;
     }
-    vaultService = new DefaultVaultService();
+    vaultService = new HttpVaultService();
   }
 
   @VisibleForTesting
