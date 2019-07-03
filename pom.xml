@@ -6,7 +6,7 @@
 
     <groupId>com.ultimatesoftware.dataplatform</groupId>
     <artifactId>kafka-vault-jca</artifactId>
-    <version>1.0-jay-pr-fixes-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>This is a module for Kafka to support SASL/PLAIN against Vault server, offers an implementation of
         `org.apache.kafka.common.security.auth.AuthenticateCallbackHandler` and `javax.security.auth.spi.LoginModule`
