@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 
 // Just for smoke tests with a specific version of vault
-public class DefaultVaultServiceTest {
+public class HttpVaultServiceTest {
 
   public static final String ADMIN_PATH = "secret/kafka/private/admin";
   public static final String USERS_PATH = "secret/kafka/private/users";
@@ -25,7 +25,7 @@ public class DefaultVaultServiceTest {
       .withEnv("VAULT_DEV_ROOT_TOKEN_ID", ROOT_TOKEN)
       .withExposedPorts(8200);
 
-  private VaultService vaultService = new DefaultVaultService(String.format("http://localhost:%s", vaultContainer.getMappedPort(8200)), ROOT_TOKEN);
+  private VaultService vaultService = new HttpVaultService(String.format("http://localhost:%s", vaultContainer.getMappedPort(8200)), ROOT_TOKEN);
 
   @Before
   public void initSecrets() {

@@ -20,7 +20,7 @@ public class CacheDecoratorVaultService implements VaultService {
 
   private static final Logger log = LoggerFactory.getLogger(CacheDecoratorVaultService.class);
   private static final String VAULT_CACHE_TTL_MIN = "VAULT_CACHE_TTL_MIN";
-  protected final Cache<String, Map<String, String>> cache;
+  final Cache<String, Map<String, String>> cache;
   private final VaultService vaultService;
 
   /**

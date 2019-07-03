@@ -3,6 +3,9 @@ package com.ultimatesoftware.dataplatform.vaultjca.services;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.Collections;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -12,13 +15,16 @@ import org.slf4j.LoggerFactory;
  * Default Vault implementation of {@link VaultService} that uses vault java client by
  * <a href="https://github.com/BetterCloud/vault-java-driver">vault driver bettercloud</a>.
  *
+ * At this point this implementation is not revoking tokens and only can be configured using the
+ * provided environment variables as described in the library documentation. It also assumes vault is using
+ * an version 2 engine.
  */
-public class DefaultVaultService implements VaultService {
-  private static final Logger log = LoggerFactory.getLogger(DefaultVaultService.class);
+public class HttpVaultService implements VaultService {
+  private static final Logger log = LoggerFactory.getLogger(HttpVaultService.class);
 
   private final Vault vault;
 
-  public DefaultVaultService() {
+  public HttpVaultService() {
     try {
       this.vault = new Vault(new VaultConfig().build());
     } catch (VaultException e) {
@@ -27,7 +33,10 @@ public class DefaultVaultService implements VaultService {
     }
   }
 
-  protected DefaultVaultService(String vaultAddr, String token) {
+  @VisibleForTesting
+  HttpVaultService(String vaultAddr, String token) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(vaultAddr));
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(token));
     try {
       this.vault = new Vault(new VaultConfig().address(vaultAddr).token(token).build());
     } catch (VaultException e) {
@@ -40,7 +49,9 @@ public class DefaultVaultService implements VaultService {
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings("unchecked")
   public Map<String, String> getSecret(String path) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(path));
     try {
       return vault.logical().read(path).getData();
     } catch (VaultException e) {

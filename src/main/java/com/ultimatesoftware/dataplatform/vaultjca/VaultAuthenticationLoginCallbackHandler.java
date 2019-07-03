@@ -2,32 +2,33 @@ package com.ultimatesoftware.dataplatform.vaultjca;
 
 import static com.ultimatesoftware.dataplatform.vaultjca.VaultLoginModule.ENV_CACHE_VAULT;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.ultimatesoftware.dataplatform.vaultjca.services.CacheDecoratorVaultService;
-import com.ultimatesoftware.dataplatform.vaultjca.services.DefaultVaultService;
+import com.ultimatesoftware.dataplatform.vaultjca.services.HttpVaultService;
 import com.ultimatesoftware.dataplatform.vaultjca.services.VaultService;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.AppConfigurationEntry;
 import org.apache.kafka.common.security.JaasContext;
 import org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.kafka.common.security.plain.PlainAuthenticateCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.AppConfigurationEntry;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Implementation of {@link AuthenticateCallbackHandler} that uses Vault to authenticate a user.
  *
  * <p>The default implementation of SASL/PLAIN in Kafka specifies user names and passwords in the JAAS configuration file.
- * In order to avoid storing these plain in disk you need to create your own implementation of common JCA
- * {@link javax.security.auth.spi.LoginModule} and {@link javax.security.auth.callback.CallbackHandler} that obtains the username and
- * password from an external source; in this case Vault.</p>
+ * In order to avoid storing these plain in disk you need to create your own implementation of common JCA {@link javax.security.auth.spi.LoginModule}
+ * and {@link javax.security.auth.callback.CallbackHandler} that obtains the username and password from an external source; in this case Vault.</p>
  *
  * <p>More info <a href="https://docs.confluent.io/current/kafka/authentication_sasl/authentication_sasl_plain.html#sasl-plain-overview.">here</a></p>
  *
@@ -60,18 +61,18 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
   private String adminPathVault;
 
   public VaultAuthenticationLoginCallbackHandler() {
-    if (System.getenv(ENV_CACHE_VAULT) != null && System.getenv(ENV_CACHE_VAULT).equalsIgnoreCase("true")){
+    if ("true".equalsIgnoreCase(System.getenv(ENV_CACHE_VAULT))) {
       log.debug("Cache vault enabled");
-      vaultService = new CacheDecoratorVaultService(new DefaultVaultService());
+      vaultService = new CacheDecoratorVaultService(new HttpVaultService());
+      return;
     }
-    else {
-      vaultService = new DefaultVaultService();
-    }
+    vaultService = new HttpVaultService();
+
   }
 
-  // for testing
+  @VisibleForTesting
   protected VaultAuthenticationLoginCallbackHandler(VaultService vaultService) {
-    this.vaultService = vaultService;
+    this.vaultService = Preconditions.checkNotNull(vaultService);
   }
 
   /**
@@ -82,13 +83,8 @@ public class VaultAuthenticationLoginCallbackHandler implements AuthenticateCall
     // Loading vault path from jaas config
     adminPathVault = JaasContext.configEntryOption(jaasConfigEntries, ADMIN_PATH, VaultLoginModule.class.getName());
     usersPathVault = JaasContext.configEntryOption(jaasConfigEntries, USERS_PATH, VaultLoginModule.class.getName());
-    log.info("usersPathVault = {}", usersPathVault);
-    if (usersPathVault == null || usersPathVault.isEmpty()) {
-      throw new RuntimeException(String.format("Jaas file needs an entry %s to the path in vault where the users reside", USERS_PATH));
-    }
-    if (adminPathVault == null || adminPathVault.isEmpty()) {
-      throw new RuntimeException(String.format("Jaas file needs an entry %s to the path in vault where the admin credentials reside", ADMIN_PATH));
-    }
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(usersPathVault), "Jaas file needs an entry %s to the path in vault where the users reside", USERS_PATH);
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(adminPathVault), "Jaas file needs an entry %s to the path in vault where the admin credentials reside", ADMIN_PATH);
   }
 
   /**

@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * Interface specifying a basic set of VAULT operations.
  *
- * Implemented by {@link DefaultVaultService} and {@link CacheDecoratorVaultService}
+ * Implemented by {@link HttpVaultService} and {@link CacheDecoratorVaultService}
  */
 public interface VaultService {
 
